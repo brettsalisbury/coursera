@@ -4,7 +4,8 @@ public class Percolation {
     private static final int LOWER_INDEX_BOUND = 1;
     private static final int MINIMUM_GRID_SIZE = 1;
 
-    private final WeightedQuickUnionUF weightedQuickUnionUF;
+    private final WeightedQuickUnionUF weightedQuickUnionUFPercolation;
+    private final WeightedQuickUnionUF weightedQuickUnionUFFull;
     private final int N;
     private final boolean[] openGrid;
 
@@ -26,8 +27,10 @@ public class Percolation {
         }
 
         this.N = N;
-        this.weightedQuickUnionUF = new WeightedQuickUnionUF((N * N)
-                + VIRTUAL_NODE_COUNT);
+        this.weightedQuickUnionUFPercolation = new WeightedQuickUnionUF(
+                (N * N) + VIRTUAL_NODE_COUNT);
+        this.weightedQuickUnionUFFull = new WeightedQuickUnionUF((N * N)
+                + VIRTUAL_NODE_COUNT - 1);
     }
 
     // open site (row i, column j) if it is not already
@@ -39,20 +42,37 @@ public class Percolation {
             this.openGrid[index] = true;
 
             // check if the cell can be joined to neighbours
-            if (this.openGrid[getNorthIndex(index)]) {
-                this.weightedQuickUnionUF.union(index, getNorthIndex(index));
+            int northIndex = getNorthIndex(index);
+            if (this.openGrid[northIndex]) {
+                this.weightedQuickUnionUFPercolation.union(index, northIndex);
+                this.weightedQuickUnionUFFull.union(index, northIndex);
             }
 
-            if (this.openGrid[getSouthIndex(index)]) {
-                this.weightedQuickUnionUF.union(index, getSouthIndex(index));
+            // Need to differentiate between perculate and full unions here
+            int southIndex = getSouthIndex(index);
+            if (this.openGrid[southIndex]) {
+                this.weightedQuickUnionUFPercolation.union(index, southIndex);
+                if (southIndex != (N * N) + VIRTUAL_NODE_COUNT - 1) {
+                    this.weightedQuickUnionUFFull.union(index, southIndex);
+                }
             }
 
-            if (j > 1 && this.openGrid[getWestIndex(index)]) {
-                this.weightedQuickUnionUF.union(index, getWestIndex(index));
+            if (j > 1) {
+                int westIndex = getWestIndex(index);
+                if (this.openGrid[westIndex]) {
+                    this.weightedQuickUnionUFPercolation.union(index,
+                            westIndex);
+                    this.weightedQuickUnionUFFull.union(index, westIndex);
+                }
             }
 
-            if (j < N && this.openGrid[getEastIndex(index)]) {
-                this.weightedQuickUnionUF.union(index, getEastIndex(index));
+            if (j < N) {
+                int eastIndex = getEastIndex(index);
+                if (this.openGrid[eastIndex]) {
+                    this.weightedQuickUnionUFPercolation.union(index,
+                            eastIndex);
+                    this.weightedQuickUnionUFFull.union(index, eastIndex);
+                }
             }
         }
     }
@@ -108,12 +128,12 @@ public class Percolation {
     public boolean isFull(int i, int j) {
         validateGridArguments(i, j);
 
-        return weightedQuickUnionUF.connected(computeGridIndex(i, j), 0);
+        return weightedQuickUnionUFFull.connected(computeGridIndex(i, j), 0);
     }
 
     // does the system percolate?
     public boolean percolates() {
-        return weightedQuickUnionUF.connected(0,
+        return weightedQuickUnionUFPercolation.connected(0,
                 ((N * N) + VIRTUAL_NODE_COUNT) - 1);
     }
 }

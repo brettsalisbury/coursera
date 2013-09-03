@@ -45,12 +45,22 @@ public class PercolationStats {
 
     // returns lower bound of the 95% confidence interval
     public double confidenceLo() {
-        return mean() - ((1.96 * Math.sqrt(this.stddev())) / (Math.sqrt(T)));
+        if (T < 30) {
+            return mean() - ((1.96 * Math.sqrt(this.stddev())) / T);
+        } else {
+            return mean()
+                    - ((1.96 * Math.sqrt(this.stddev())) / (Math.sqrt(T)));
+        }
     }
 
     // returns upper bound of the 95% confidence interval
     public double confidenceHi() {
-        return mean() + ((1.96 * Math.sqrt(this.stddev())) / (Math.sqrt(T)));
+        if (T < 30) {
+            return mean() + ((1.96 * Math.sqrt(this.stddev())) / T);
+        } else {
+            return mean()
+                    + ((1.96 * Math.sqrt(this.stddev())) / (Math.sqrt(T)));
+        }
     }
 
     // test client, described below

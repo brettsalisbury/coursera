@@ -1,7 +1,6 @@
 public class PercolationStats {
 
     private final double[] results;
-    private final double mean = -1;
     private final int T;
 
     // perform T independent computational experiments on an N-by-N grid
@@ -13,6 +12,7 @@ public class PercolationStats {
         }
 
         results = new double[T];
+        double arraySize = N * N;
 
         for (int i = 0; i < T; i++) {
             Percolation percolation = new Percolation(N);
@@ -23,11 +23,13 @@ public class PercolationStats {
             do {
                 k = StdRandom.uniform(N) + 1;
                 j = StdRandom.uniform(N) + 1;
-                percolation.open(k, j);
-                count++;
+                if (!percolation.isOpen(k, j)) {
+                    percolation.open(k, j);
+                    count++;
+                }
             } while (!percolation.percolates());
 
-            results[i] = ((double) count) / (double) (N * N);
+            results[i] = count / arraySize;
         }
     }
 
@@ -43,12 +45,12 @@ public class PercolationStats {
 
     // returns lower bound of the 95% confidence interval
     public double confidenceLo() {
-        return this.mean - ((1.96 * this.stddev()) / (Math.sqrt(T)));
+        return mean() - ((1.96 * Math.sqrt(this.stddev())) / (Math.sqrt(T)));
     }
 
     // returns upper bound of the 95% confidence interval
     public double confidenceHi() {
-        return this.mean + ((1.96 * this.stddev()) / (Math.sqrt(T)));
+        return mean() + ((1.96 * Math.sqrt(this.stddev())) / (Math.sqrt(T)));
     }
 
     // test client, described below

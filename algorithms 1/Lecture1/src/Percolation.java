@@ -27,8 +27,8 @@ public class Percolation {
         }
 
         this.N = N;
-        this.weightedQuickUnionUFPercolation = new WeightedQuickUnionUF(
-                (N * N) + VIRTUAL_NODE_COUNT);
+        this.weightedQuickUnionUFPercolation = new WeightedQuickUnionUF((N * N)
+                + VIRTUAL_NODE_COUNT);
         this.weightedQuickUnionUFFull = new WeightedQuickUnionUF((N * N)
                 + VIRTUAL_NODE_COUNT - 1);
     }
@@ -60,8 +60,8 @@ public class Percolation {
             if (j > 1) {
                 int westIndex = getWestIndex(index);
                 if (this.openGrid[westIndex]) {
-                    this.weightedQuickUnionUFPercolation.union(index,
-                            westIndex);
+                    this.weightedQuickUnionUFPercolation
+                            .union(index, westIndex);
                     this.weightedQuickUnionUFFull.union(index, westIndex);
                 }
             }
@@ -69,8 +69,8 @@ public class Percolation {
             if (j < N) {
                 int eastIndex = getEastIndex(index);
                 if (this.openGrid[eastIndex]) {
-                    this.weightedQuickUnionUFPercolation.union(index,
-                            eastIndex);
+                    this.weightedQuickUnionUFPercolation
+                            .union(index, eastIndex);
                     this.weightedQuickUnionUFFull.union(index, eastIndex);
                 }
             }

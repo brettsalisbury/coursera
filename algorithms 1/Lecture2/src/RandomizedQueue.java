@@ -44,6 +44,10 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private void increaseCollectionSize() {
         int newSize = this.size * 2;
+        createNewQueueOfSize(newSize);
+    }
+
+    private void createNewQueueOfSize(int newSize) {
         Object newCollection[] = new Object[newSize];
         for (int i = 0; i < this.next; i++) {
             newCollection[i] = this.collection[i];
@@ -60,11 +64,20 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         int removeIndex = getIndex();
         @SuppressWarnings("unchecked")
         Item val = (Item) this.collection[removeIndex];
-        for (int i = removeIndex + 1; i < this.next; i++) {
-            this.collection[i - 1] = this.collection[i];
-        }
+        this.collection[removeIndex] = this.collection[this.next - 1];
+        this.collection[this.next - 1] = null;
+        this.next--;
+
+        reduceMemoryIfRequired();
 
         return val;
+    }
+
+    private void reduceMemoryIfRequired() {
+        if (this.next < (this.size / 2)) {
+            int newSize = this.size / 2;
+            createNewQueueOfSize(newSize);
+        }
     }
 
     private void validateQueueIsNotEmpty() {
@@ -99,9 +112,23 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         private int currIndex;
 
         public RandomizedQueueIterator(Object[] collection, int size) {
-            this.collection = collection;
+            this.collection = new Object[size];
+            for (int i = 0; i < size; i++) {
+                this.collection[i] = collection[i];
+            }
+
             this.size = size;
             this.currIndex = 0;
+            shuffle();
+        }
+
+        private void shuffle() {
+            for (int i = 0; i < this.size; i++) {
+                int swapIndex = StdRandom.uniform(size);
+                Object temp = this.collection[swapIndex];
+                this.collection[swapIndex] = this.collection[i];
+                this.collection[i] = temp;
+            }
         }
 
         @Override
@@ -112,9 +139,17 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         @SuppressWarnings("unchecked")
         @Override
         public Item next() {
+            validateNextIsValidOperaton();
+
             Item val = (Item) this.collection[this.currIndex];
             this.currIndex++;
             return val;
+        }
+
+        private void validateNextIsValidOperaton() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
         }
 
         @Override
